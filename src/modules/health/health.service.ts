@@ -5,7 +5,7 @@ import { HealthRepository } from './health.repository';
 export class HealthService {
   constructor(private readonly healthRepository: HealthRepository) {}
 
-  checkHealth() {
+  async checkHealth() {
     return this.healthRepository.getHealthStatus();
   }
 }

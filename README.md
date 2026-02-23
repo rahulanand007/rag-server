@@ -44,6 +44,30 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Docker local stack
+
+```bash
+# copy local env (do not commit .env)
+# mac/linux:
+$ cp .env.example .env
+# windows powershell:
+$ Copy-Item .env.example .env
+
+# start app + pgvector postgres
+$ docker compose up --build
+```
+
+Secrets pattern:
+- commit only `.env.example`
+- keep real values in untracked `.env`
+- optional: mount files from `secrets/` for production runtimes
+
+Health check:
+
+```bash
+$ curl http://localhost:3000/health
+```
+
 ## Run tests
 
 ```bash
