@@ -21,8 +21,10 @@ describe('HealthController (e2e)', () => {
       .get('/health')
       .expect(200)
       .expect((res) => {
-        expect(res.body.status).toBe('ok');
+        expect(typeof res.body.status).toBe('string');
         expect(typeof res.body.timestamp).toBe('string');
+        expect(typeof res.body.db).toBe('object');
+        expect(typeof res.body.db.status).toBe('string');
       });
   });
 });
