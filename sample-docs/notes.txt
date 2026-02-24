@@ -1,0 +1,4 @@
+RAG ingestion second document.
+This plain text file ensures the txt loader path is validated.
+Re-running ingestion should not create duplicate rows.
+Only this document should update on next ingest.

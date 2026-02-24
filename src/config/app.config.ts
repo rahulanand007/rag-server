@@ -32,3 +32,10 @@ export const dbConfig = {
   connectionTimeoutMs: parseNumber(process.env.DB_CONN_TIMEOUT_MS, 5000),
   ssl: parseBoolean(process.env.DB_SSL, false),
 };
+
+export const ragConfig = {
+  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL ?? 'text-embedding-3-small',
+  chatModel: process.env.OPENAI_CHAT_MODEL ?? 'gpt-4o-mini',
+  retrievalTopK: parseNumber(process.env.RAG_RETRIEVAL_TOP_K, 5),
+  maxContextChunks: parseNumber(process.env.RAG_MAX_CONTEXT_CHUNKS, 4),
+};

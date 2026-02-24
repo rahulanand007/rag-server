@@ -1,8 +1,14 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { NodePgDatabase, drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { dbConfig } from '../../config/app.config';
+import { dbSchema } from './schema';
 
 type DatabaseHealth = {
   status: 'up' | 'down';
@@ -14,7 +20,7 @@ type DatabaseHealth = {
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DatabaseService.name);
   private readonly pool: Pool | null;
-  private readonly db: NodePgDatabase | null;
+  private readonly db: NodePgDatabase<typeof dbSchema> | null;
 
   constructor() {
     const connectionString = dbConfig.url;
@@ -35,7 +41,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       ssl: dbConfig.ssl ? { rejectUnauthorized: true } : undefined,
     });
 
-    this.db = drizzle(this.pool);
+    this.db = drizzle(this.pool, { schema: dbSchema });
   }
 
   async onModuleInit() {
@@ -46,7 +52,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    this.logger.warn(`Postgres unavailable: ${health.error ?? 'unknown error'}`);
+    this.logger.warn(
+      `Postgres unavailable: ${health.error ?? 'unknown error'}`,
+    );
   }
 
   async onModuleDestroy() {

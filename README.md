@@ -68,6 +68,40 @@ Health check:
 $ curl http://localhost:3000/health
 ```
 
+## Ingestion CLI
+
+```bash
+# local host runtime
+$ npm run ingest -- --path ./sample-docs --source local-files
+
+# optional explicit DB URL override for host execution
+$ npm run ingest -- --path ./sample-docs --databaseUrl "postgresql://rag_user:***@localhost:5432/rag"
+```
+
+Supported loaders in v0:
+- `.md`
+- `.txt`
+
+## Retrieval and Query APIs
+
+```bash
+# retrieval only
+$ curl -X POST http://localhost:3000/retrieval/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"What does ingestion validate?","topK":3,"source":"local-files"}'
+
+# retrieval + answer generation
+$ curl -X POST http://localhost:3000/query/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What does notes document say?","topK":3,"source":"local-files"}'
+```
+
+Smoke check:
+
+```bash
+$ npm run smoke:rag
+```
+
 ## Run tests
 
 ```bash
