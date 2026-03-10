@@ -31,8 +31,14 @@ export class IngestionRepository {
     return this.databaseService.getClient();
   }
 
-  async findDocument(source: string, docId: string): Promise<{ id: string; contentHash: string } | null> {
-    const result = await this.db.execute<{ id: string; contentHash: string }>(sql`
+  async findDocument(
+    source: string,
+    docId: string,
+  ): Promise<{ id: string; contentHash: string } | null> {
+    const result = await this.db.execute<{
+      id: string;
+      contentHash: string;
+    }>(sql`
       SELECT id, content_hash AS "contentHash"
       FROM rag.documents
       WHERE source = ${source} AND doc_id = ${docId}
@@ -57,13 +63,18 @@ export class IngestionRepository {
 
     const id = result.rows[0]?.id;
     if (!id) {
-      throw new Error(`Failed to upsert document ${input.source}/${input.docId}`);
+      throw new Error(
+        `Failed to upsert document ${input.source}/${input.docId}`,
+      );
     }
 
     return { id };
   }
 
-  async replaceDocumentChunks(documentId: string, chunkIds: string[]): Promise<void> {
+  async replaceDocumentChunks(
+    documentId: string,
+    chunkIds: string[],
+  ): Promise<void> {
     if (chunkIds.length === 0) {
       await this.db.execute(sql`
         DELETE FROM rag.chunks

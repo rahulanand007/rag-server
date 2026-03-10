@@ -20,11 +20,19 @@ export const documents = rag.table(
     docId: text('doc_id').notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
     contentHash: text('content_hash').notNull(),
-    metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+    metadata: jsonb('metadata')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    ingestedAt: timestamp('ingested_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (table) => [uniqueIndex('uq_documents_source_doc_id').on(table.source, table.docId)],
+  (table) => [
+    uniqueIndex('uq_documents_source_doc_id').on(table.source, table.docId),
+  ],
 );
 
 export const chunks = rag.table(
@@ -42,12 +50,19 @@ export const chunks = rag.table(
     source: text('source').notNull(),
     docId: text('doc_id').notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
-    metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    metadata: jsonb('metadata')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex('uq_chunks_chunk_id').on(table.chunkId),
-    uniqueIndex('uq_chunks_document_chunk_index').on(table.documentId, table.chunkIndex),
+    uniqueIndex('uq_chunks_document_chunk_index').on(
+      table.documentId,
+      table.chunkIndex,
+    ),
     index('idx_chunks_document_id').on(table.documentId),
     index('idx_chunks_source_doc_id').on(table.source, table.docId),
   ],
@@ -59,8 +74,12 @@ export const queryLogs = rag.table(
     id: uuid('id').primaryKey().defaultRandom(),
     question: text('question').notNull(),
     answer: text('answer').notNull(),
-    metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    metadata: jsonb('metadata')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [index('idx_query_logs_created_at').on(table.createdAt)],
 );
