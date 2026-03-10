@@ -13,7 +13,9 @@ export class AiService {
 
     const apiKey = process.env.OPENAI_API_KEY ?? '';
     if (!apiKey) {
-      this.logger.warn('OPENAI_API_KEY is missing. Falling back to deterministic local embeddings.');
+      this.logger.warn(
+        'OPENAI_API_KEY is missing. Falling back to deterministic local embeddings.',
+      );
       return texts.map((text) => this.createLocalEmbedding(text));
     }
 
@@ -38,7 +40,9 @@ export class AiService {
         return texts.map((text) => this.createLocalEmbedding(text));
       }
 
-      const body = (await response.json()) as { data: Array<{ embedding: number[] }> };
+      const body = (await response.json()) as {
+        data: Array<{ embedding: number[] }>;
+      };
       return body.data.map((item) => item.embedding);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'unknown error';
@@ -54,34 +58,43 @@ export class AiService {
     return embeddings[0] ?? this.createLocalEmbedding(text);
   }
 
-  async generateAnswer(question: string, contexts: string[]): Promise<string> {
+  async generateAnswer(
+    question: string,
+    labeledContexts: string[],
+  ): Promise<string> {
     const apiKey = process.env.OPENAI_API_KEY ?? '';
-    const contextText = contexts.length > 0 ? contexts.join('\n\n---\n\n') : 'No context retrieved.';
+    const contextText =
+      labeledContexts.length > 0
+        ? labeledContexts.join('\n\n---\n\n')
+        : 'No context retrieved.';
 
     if (!apiKey) {
       return `OPENAI_API_KEY is not configured. Retrieved context:\n\n${contextText}`;
     }
 
     const systemPrompt =
-      'You are a retrieval-augmented assistant. Answer using the provided context only. If context is insufficient, say so clearly.';
+      'You are a retrieval-augmented assistant. Answer using only the provided context. Cite every factual claim inline with the supplied chunk IDs like [notes.txt:0]. If the context is insufficient, say so clearly.';
     const userPrompt = `Question:\n${question}\n\nContext:\n${contextText}`;
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
+      const response = await fetch(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: ragConfig.chatModel,
+            temperature: 0.2,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+          }),
         },
-        body: JSON.stringify({
-          model: ragConfig.chatModel,
-          temperature: 0.2,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-        }),
-      });
+      );
 
       if (!response.ok) {
         const errorBody = await response.text();
@@ -103,7 +116,9 @@ export class AiService {
       return answer;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'unknown error';
-      this.logger.warn(`Chat completion crashed. Returning context-only response. ${message}`);
+      this.logger.warn(
+        `Chat completion crashed. Returning context-only response. ${message}`,
+      );
       return `Model unavailable. Retrieved context:\n\n${contextText}`;
     }
   }

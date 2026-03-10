@@ -15,7 +15,9 @@ export class QueryRepository {
     answer: string;
     source?: string;
     topK: number;
-    chunksUsed: number;
+    retrieved: number;
+    usedForAnswer: number;
+    citationChunkIds: string[];
   }): Promise<void> {
     await this.db.execute(sql`
       INSERT INTO rag.query_logs (question, answer, metadata)
@@ -25,7 +27,9 @@ export class QueryRepository {
         ${JSON.stringify({
           source: input.source ?? null,
           topK: input.topK,
-          chunksUsed: input.chunksUsed,
+          retrieved: input.retrieved,
+          usedForAnswer: input.usedForAnswer,
+          citationChunkIds: input.citationChunkIds,
         })}::jsonb
       );
     `);
