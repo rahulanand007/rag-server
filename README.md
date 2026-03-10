@@ -44,6 +44,64 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Docker local stack
+
+```bash
+# copy local env (do not commit .env)
+# mac/linux:
+$ cp .env.example .env
+# windows powershell:
+$ Copy-Item .env.example .env
+
+# start app + pgvector postgres
+$ docker compose up --build
+```
+
+Secrets pattern:
+- commit only `.env.example`
+- keep real values in untracked `.env`
+- optional: mount files from `secrets/` for production runtimes
+
+Health check:
+
+```bash
+$ curl http://localhost:3000/health
+```
+
+## Ingestion CLI
+
+```bash
+# local host runtime
+$ npm run ingest -- --path ./sample-docs --source local-files
+
+# optional explicit DB URL override for host execution
+$ npm run ingest -- --path ./sample-docs --databaseUrl "postgresql://rag_user:***@localhost:5432/rag"
+```
+
+Supported loaders in v0:
+- `.md`
+- `.txt`
+
+## Retrieval and Query APIs
+
+```bash
+# retrieval only
+$ curl -X POST http://localhost:3000/retrieval/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"What does ingestion validate?","topK":3,"source":"local-files"}'
+
+# retrieval + answer generation
+$ curl -X POST http://localhost:3000/query/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What does notes document say?","topK":3,"source":"local-files"}'
+```
+
+Smoke check:
+
+```bash
+$ npm run smoke:rag
+```
+
 ## Run tests
 
 ```bash
